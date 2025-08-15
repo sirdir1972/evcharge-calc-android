@@ -15,6 +15,12 @@ data class BatterySettings(
     val chargeLosses: Float
 )
 
+data class GoEChargerSettings(
+    val enabled: Boolean,
+    val ipAddress: String,
+    val connectionStatus: String
+)
+
 class SettingsManager(application: Application) : AndroidViewModel(application) {
     private val preferences = application.getSharedPreferences("ev_settings", android.content.Context.MODE_PRIVATE)
     
@@ -27,6 +33,16 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
     )
     val settings: StateFlow<BatterySettings> = _settings.asStateFlow()
     
+    // go-eCharger settings
+    private val _goEChargerSettings = MutableStateFlow(
+        GoEChargerSettings(
+            enabled = preferences.getBoolean("goEChargerEnabled", false),
+            ipAddress = preferences.getString("goEChargerIpAddress", "") ?: "",
+            connectionStatus = "Not tested"
+        )
+    )
+    val goEChargerSettings: StateFlow<GoEChargerSettings> = _goEChargerSettings.asStateFlow()
+    
     // Legacy compatibility properties for SettingsScreen
     private val _batteryCapacity = mutableStateOf(
         preferences.getFloat("batteryCapacity", 75.0f).toDouble()
@@ -34,14 +50,28 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
     val batteryCapacity: State<Double> = _batteryCapacity
     
     private val _stateOfHealth = mutableStateOf(
-        preferences.getFloat("stateOfHealth", 95.0f).toDouble()
+        preferences.getFloat("stateOfHealth", 0.95f).toDouble() * 100.0
     )
     val stateOfHealth: State<Double> = _stateOfHealth
     
     private val _chargeLosses = mutableStateOf(
-        preferences.getFloat("chargeLosses", 10.0f).toDouble()
+        preferences.getFloat("chargeLosses", 0.10f).toDouble() * 100.0
     )
     val chargeLosses: State<Double> = _chargeLosses
+    
+    // Legacy compatibility for go-eCharger settings in SettingsScreen
+    private val _goEChargerEnabled = mutableStateOf(
+        preferences.getBoolean("goEChargerEnabled", false)
+    )
+    val goEChargerEnabled: State<Boolean> = _goEChargerEnabled
+    
+    private val _goEChargerIpAddress = mutableStateOf(
+        preferences.getString("goEChargerIpAddress", "") ?: ""
+    )
+    val goEChargerIpAddress: State<String> = _goEChargerIpAddress
+    
+    private val _goEChargerConnectionStatus = mutableStateOf("Not tested")
+    val goEChargerConnectionStatus: State<String> = _goEChargerConnectionStatus
     
     fun setBatteryCapacity(capacity: Double) {
         _batteryCapacity.value = capacity
@@ -81,5 +111,31 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
         val baseEnergyNeeded = effectiveBatteryCapacity * (socDifference / 100.0)
         val energyWithLosses = baseEnergyNeeded * (1.0 + chargeLosses.value / 100.0)
         return max(0.0, energyWithLosses)
+    }
+    
+    // go-eCharger settings management
+    fun setGoEChargerEnabled(enabled: Boolean) {
+        _goEChargerEnabled.value = enabled
+        preferences.edit().putBoolean("goEChargerEnabled", enabled).apply()
+        updateGoEChargerStateFlow()
+    }
+    
+    fun setGoEChargerIpAddress(ipAddress: String) {
+        _goEChargerIpAddress.value = ipAddress
+        preferences.edit().putString("goEChargerIpAddress", ipAddress).apply()
+        updateGoEChargerStateFlow()
+    }
+    
+    fun setGoEChargerConnectionStatus(status: String) {
+        _goEChargerConnectionStatus.value = status
+        updateGoEChargerStateFlow()
+    }
+    
+    private fun updateGoEChargerStateFlow() {
+        _goEChargerSettings.value = GoEChargerSettings(
+            enabled = _goEChargerEnabled.value,
+            ipAddress = _goEChargerIpAddress.value,
+            connectionStatus = _goEChargerConnectionStatus.value
+        )
     }
 }

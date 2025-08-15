@@ -19,6 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +32,11 @@ fun SettingsScreen(
     var batteryCapacityText by remember { mutableStateOf("%.1f".format(settingsManager.batteryCapacity.value)) }
     var stateOfHealthText by remember { mutableStateOf("%.1f".format(settingsManager.stateOfHealth.value)) }
     var chargeLossesText by remember { mutableStateOf("%.1f".format(settingsManager.chargeLosses.value)) }
+    
+    // go-eCharger states
+    var goEChargerIpText by remember { mutableStateOf(settingsManager.goEChargerIpAddress.value) }
+    val goEChargerApi = remember { GoEChargerApi() }
+    val scope = rememberCoroutineScope()
     
     // Update text fields when slider values change
     LaunchedEffect(settingsManager.batteryCapacity.value) {
@@ -281,6 +288,131 @@ fun SettingsScreen(
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.secondary
                         )
+                    }
+                }
+            }
+            
+            // go-eCharger Integration Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "go-eCharger Integration",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    
+                    // Enable/Disable Switch
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Enable go-eCharger",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = "Push charge limits to charger",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        
+                        Switch(
+                            checked = settingsManager.goEChargerEnabled.value,
+                            onCheckedChange = { enabled ->
+                                settingsManager.setGoEChargerEnabled(enabled)
+                                if (!enabled) {
+                                    settingsManager.setGoEChargerConnectionStatus("Not tested")
+                                }
+                            }
+                        )
+                    }
+                    
+                    // IP Address Input (only shown when enabled)
+                    if (settingsManager.goEChargerEnabled.value) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = "Charger IP Address",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                OutlinedTextField(
+                                    value = goEChargerIpText,
+                                    onValueChange = { 
+                                        goEChargerIpText = it
+                                        settingsManager.setGoEChargerIpAddress(it)
+                                        settingsManager.setGoEChargerConnectionStatus("Not tested")
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    placeholder = { Text("192.168.1.100") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true
+                                )
+                                
+                                Button(
+                                    onClick = {
+                                        scope.launch {
+                                            settingsManager.setGoEChargerConnectionStatus("Testing...")
+                                            val result = goEChargerApi.testConnection(goEChargerIpText)
+                                            if (result.success) {
+                                                settingsManager.setGoEChargerConnectionStatus(
+                                                    "✓ ${result.data ?: "Connected"}"
+                                                )
+                                            } else {
+                                                settingsManager.setGoEChargerConnectionStatus(
+                                                    "✗ ${result.error ?: "Failed"}"
+                                                )
+                                            }
+                                        }
+                                    },
+                                    enabled = goEChargerIpText.isNotBlank()
+                                ) {
+                                    Text("Test")
+                                }
+                            }
+                            
+                            // Connection Status
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Connection Status:",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Text(
+                                    text = settingsManager.goEChargerConnectionStatus.value,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    color = when {
+                                        settingsManager.goEChargerConnectionStatus.value.startsWith("✓") -> 
+                                            Color(0xFF4CAF50)
+                                        settingsManager.goEChargerConnectionStatus.value.startsWith("✗") -> 
+                                            Color(0xFFF44336)
+                                        settingsManager.goEChargerConnectionStatus.value == "Testing..." -> 
+                                            MaterialTheme.colorScheme.primary
+                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
