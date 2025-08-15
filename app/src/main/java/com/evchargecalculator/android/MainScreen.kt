@@ -28,10 +28,11 @@ fun MainScreen(
     onSettingsClick: () -> Unit,
     settingsManager: SettingsManager = viewModel()
 ) {
-    var currentSOC by remember { mutableFloatStateOf(20f) }
-    var targetSOC by remember { mutableFloatStateOf(80f) }
-    var currentSOCText by remember { mutableStateOf("20") }
-    var targetSOCText by remember { mutableStateOf("80") }
+    // Use persistent SOC values from SettingsManager
+    val currentSOC = settingsManager.currentSOC.value
+    val targetSOC = settingsManager.targetSOC.value
+    var currentSOCText by remember { mutableStateOf(currentSOC.roundToInt().toString()) }
+    var targetSOCText by remember { mutableStateOf(targetSOC.roundToInt().toString()) }
 
     // go-eCharger states
     val goEChargerApi = remember { GoEChargerApi() }
@@ -113,7 +114,7 @@ fun MainScreen(
                                 currentSOCText = newValue
                                 newValue.toFloatOrNull()?.let { value ->
                                     if (value in 0f..100f) {
-                                        currentSOC = value
+                                        settingsManager.setCurrentSOC(value)
                                     }
                                 }
                             },
@@ -135,7 +136,7 @@ fun MainScreen(
 
                     Slider(
                         value = currentSOC,
-                        onValueChange = { currentSOC = it },
+                        onValueChange = { settingsManager.setCurrentSOC(it) },
                         valueRange = 0f..100f,
                         modifier = Modifier.fillMaxWidth(),
                         colors = SliderDefaults.colors(
@@ -166,7 +167,7 @@ fun MainScreen(
                                 targetSOCText = newValue
                                 newValue.toFloatOrNull()?.let { value ->
                                     if (value in 0f..100f) {
-                                        targetSOC = value
+                                        settingsManager.setTargetSOC(value)
                                     }
                                 }
                             },
@@ -188,7 +189,7 @@ fun MainScreen(
 
                     Slider(
                         value = targetSOC,
-                        onValueChange = { targetSOC = it },
+                        onValueChange = { settingsManager.setTargetSOC(it) },
                         valueRange = 0f..100f,
                         modifier = Modifier.fillMaxWidth(),
                         colors = SliderDefaults.colors(
@@ -476,8 +477,7 @@ fun MainScreen(
             ) {
                 OutlinedButton(
                     onClick = {
-                        targetSOC = 80f
-                        targetSOCText = "80"
+                        settingsManager.setTargetSOC(80f)
                     },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -491,8 +491,7 @@ fun MainScreen(
 
                 OutlinedButton(
                     onClick = {
-                        targetSOC = 100f
-                        targetSOCText = "100"
+                        settingsManager.setTargetSOC(100f)
                     },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -506,8 +505,7 @@ fun MainScreen(
 
                 OutlinedButton(
                     onClick = {
-                        targetSOC = 90f
-                        targetSOCText = "90"
+                        settingsManager.setTargetSOC(90f)
                     },
                     modifier = Modifier.weight(1f)
                 ) {

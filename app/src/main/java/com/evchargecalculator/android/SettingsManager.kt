@@ -73,6 +73,17 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
     private val _goEChargerConnectionStatus = mutableStateOf("Not tested")
     val goEChargerConnectionStatus: State<String> = _goEChargerConnectionStatus
     
+    // SOC values persistence
+    private val _currentSOC = mutableStateOf(
+        preferences.getFloat("currentSOC", 20.0f)
+    )
+    val currentSOC: State<Float> = _currentSOC
+    
+    private val _targetSOC = mutableStateOf(
+        preferences.getFloat("targetSOC", 80.0f)
+    )
+    val targetSOC: State<Float> = _targetSOC
+    
     fun setBatteryCapacity(capacity: Double) {
         _batteryCapacity.value = capacity
         preferences.edit().putFloat("batteryCapacity", capacity.toFloat()).apply()
@@ -137,5 +148,16 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
             ipAddress = _goEChargerIpAddress.value,
             connectionStatus = _goEChargerConnectionStatus.value
         )
+    }
+    
+    // SOC values management
+    fun setCurrentSOC(soc: Float) {
+        _currentSOC.value = soc
+        preferences.edit().putFloat("currentSOC", soc).apply()
+    }
+    
+    fun setTargetSOC(soc: Float) {
+        _targetSOC.value = soc
+        preferences.edit().putFloat("targetSOC", soc).apply()
     }
 }
