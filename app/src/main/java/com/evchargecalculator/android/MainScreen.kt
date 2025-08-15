@@ -106,15 +106,30 @@ fun MainScreen(
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Medium
                         )
-                        Text(
-                            text = "${currentSOC.roundToInt()}%",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = when {
-                                currentSOC < 20 -> Color.Red
-                                currentSOC < 50 -> Color(0xFFFF8C00)
-                                else -> Color.Green
-                            }
+                        
+                        OutlinedTextField(
+                            value = currentSOCText,
+                            onValueChange = { newValue ->
+                                currentSOCText = newValue
+                                newValue.toFloatOrNull()?.let { value ->
+                                    if (value in 0f..100f) {
+                                        currentSOC = value
+                                    }
+                                }
+                            },
+                            modifier = Modifier.width(100.dp),
+                            textStyle = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.End,
+                                color = when {
+                                    currentSOC < 20 -> Color.Red
+                                    currentSOC < 50 -> Color(0xFFFF8C00)
+                                    else -> Color.Green
+                                }
+                            ),
+                            suffix = { Text(" %", style = MaterialTheme.typography.bodySmall) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true
                         )
                     }
 
@@ -127,22 +142,6 @@ fun MainScreen(
                             thumbColor = Color(0xFFFF8C00),
                             activeTrackColor = Color(0xFFFF8C00)
                         )
-                    )
-
-                    OutlinedTextField(
-                        value = currentSOCText,
-                        onValueChange = { newValue ->
-                            currentSOCText = newValue
-                            newValue.toFloatOrNull()?.let { value ->
-                                if (value in 0f..100f) {
-                                    currentSOC = value
-                                }
-                            }
-                        },
-                        label = { Text("Current SOC %") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
@@ -160,15 +159,30 @@ fun MainScreen(
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Medium
                         )
-                        Text(
-                            text = "${targetSOC.roundToInt()}%",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = when {
-                                targetSOC < 20 -> Color.Red
-                                targetSOC < 50 -> Color(0xFFFF8C00)
-                                else -> Color.Green
-                            }
+                        
+                        OutlinedTextField(
+                            value = targetSOCText,
+                            onValueChange = { newValue ->
+                                targetSOCText = newValue
+                                newValue.toFloatOrNull()?.let { value ->
+                                    if (value in 0f..100f) {
+                                        targetSOC = value
+                                    }
+                                }
+                            },
+                            modifier = Modifier.width(100.dp),
+                            textStyle = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.End,
+                                color = when {
+                                    targetSOC < 20 -> Color.Red
+                                    targetSOC < 50 -> Color(0xFFFF8C00)
+                                    else -> Color.Green
+                                }
+                            ),
+                            suffix = { Text(" %", style = MaterialTheme.typography.bodySmall) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true
                         )
                     }
 
@@ -181,22 +195,6 @@ fun MainScreen(
                             thumbColor = Color.Green,
                             activeTrackColor = Color.Green
                         )
-                    )
-
-                    OutlinedTextField(
-                        value = targetSOCText,
-                        onValueChange = { newValue ->
-                            targetSOCText = newValue
-                            newValue.toFloatOrNull()?.let { value ->
-                                if (value in 0f..100f) {
-                                    targetSOC = value
-                                }
-                            }
-                        },
-                        label = { Text("Target SOC %") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
