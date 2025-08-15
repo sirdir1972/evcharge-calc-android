@@ -20,6 +20,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Settings
 import kotlin.math.ceil
 
 @Composable
@@ -73,8 +74,12 @@ fun MainScreen(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            OutlinedButton(onClick = onSettingsClick) {
-                Text(stringResource(R.string.settings))
+            IconButton(onClick = onSettingsClick) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
 
@@ -394,28 +399,11 @@ fun MainScreen(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Button(
-                        onClick = onSettingsClick,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(R.string.open_settings),
-                            color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                }
+                Text(
+                    text = stringResource(R.string.settings),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Medium
+                )
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(
@@ -490,15 +478,13 @@ fun MainScreen(
             ) {
                 OutlinedButton(
                     onClick = {
-                        currentSOC = 20f
                         targetSOC = 80f
-                        currentSOCText = "20"
                         targetSOCText = "80"
                     },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = stringResource(R.string.daily_preset),
+                        text = "Daily 80%",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
@@ -507,15 +493,13 @@ fun MainScreen(
 
                 OutlinedButton(
                     onClick = {
-                        currentSOC = 20f
                         targetSOC = 100f
-                        currentSOCText = "20"
                         targetSOCText = "100"
                     },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = stringResource(R.string.road_trip_preset),
+                        text = "Road Trip 100%",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
@@ -524,15 +508,13 @@ fun MainScreen(
 
                 OutlinedButton(
                     onClick = {
-                        currentSOC = 60f
                         targetSOC = 90f
-                        currentSOCText = "60"
                         targetSOCText = "90"
                     },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = stringResource(R.string.top_up_preset),
+                        text = "Top Up 90%",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
