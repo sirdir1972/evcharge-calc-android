@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">EV Charge Calculator</string>
+    <string name="current_charge">Current Charge</string>
+    <string name="target_charge">Target Charge</string>
+    <string name="charge_required">Charge Required</string>
+    <string name="energy_needed">Energy Needed</string>
+    <string name="soc_increase">SOC Increase</string>
+    <string name="effective_capacity">Effective Capacity</string>
+    <string name="settings">Settings</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="battery_capacity">Battery Capacity</string>
+    <string name="state_of_health">State of Health</string>
+    <string name="charge_losses">Charge Losses</string>
+    <string name="quick_presets">Quick Presets</string>
+    <string name="daily_preset">Daily\n(20-80%)</string>
+    <string name="road_trip_preset">Road Trip\n(20-100%)</string>
+    <string name="top_up_preset">Top Up\n(60-90%)</string>
+    <string name="target_lower_warning">Target charge is lower than current charge</string>
+    <string name="ev_settings">EV Settings</string>
+    <string name="done">Done</string>
+    <string name="battery_configuration">Battery Configuration</string>
+    <string name="calculated_values">Calculated Values</string>
+    <string name="usable_capacity">Usable Capacity (10-90%)</string>
+    <string name="settings_description">Adjust these values based on your EV\'s specifications. Battery capacity is the total kWh rating, SOH represents battery degradation over time, and charge losses account for charging inefficiencies.</string>
+</resources>
