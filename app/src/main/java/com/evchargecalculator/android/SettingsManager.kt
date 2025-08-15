@@ -38,7 +38,7 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
         GoEChargerSettings(
             enabled = preferences.getBoolean("goEChargerEnabled", false),
             ipAddress = preferences.getString("goEChargerIpAddress", "") ?: "",
-            connectionStatus = "Not tested"
+            connectionStatus = preferences.getString("goEChargerConnectionStatus", "Not tested") ?: "Not tested"
         )
     )
     val goEChargerSettings: StateFlow<GoEChargerSettings> = _goEChargerSettings.asStateFlow()
@@ -70,7 +70,9 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
     )
     val goEChargerIpAddress: State<String> = _goEChargerIpAddress
     
-    private val _goEChargerConnectionStatus = mutableStateOf("Not tested")
+    private val _goEChargerConnectionStatus = mutableStateOf(
+        preferences.getString("goEChargerConnectionStatus", "Not tested") ?: "Not tested"
+    )
     val goEChargerConnectionStatus: State<String> = _goEChargerConnectionStatus
     
     // SOC values persistence
@@ -139,6 +141,7 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
     
     fun setGoEChargerConnectionStatus(status: String) {
         _goEChargerConnectionStatus.value = status
+        preferences.edit().putString("goEChargerConnectionStatus", status).apply()
         updateGoEChargerStateFlow()
     }
     

@@ -354,10 +354,13 @@ fun SettingsScreen(
                             ) {
                                 OutlinedTextField(
                                     value = goEChargerIpText,
-                                    onValueChange = { 
-                                        goEChargerIpText = it
-                                        settingsManager.setGoEChargerIpAddress(it)
-                                        settingsManager.setGoEChargerConnectionStatus("Not tested")
+                                    onValueChange = { newIp ->
+                                        goEChargerIpText = newIp
+                                        // Only reset connection status if IP actually changed
+                                        if (newIp != settingsManager.goEChargerIpAddress.value) {
+                                            settingsManager.setGoEChargerConnectionStatus("Not tested")
+                                        }
+                                        settingsManager.setGoEChargerIpAddress(newIp)
                                     },
                                     modifier = Modifier.weight(1f),
                                     placeholder = { Text("192.168.1.100") },
