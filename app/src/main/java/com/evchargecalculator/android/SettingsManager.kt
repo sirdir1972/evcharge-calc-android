@@ -153,14 +153,44 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
         )
     }
     
-    // SOC values management
+    // SOC values management with validation
     fun setCurrentSOC(soc: Float) {
-        _currentSOC.value = soc
-        preferences.edit().putFloat("currentSOC", soc).apply()
+        val clampedSoc = soc.coerceIn(0f, 100f)
+        
+        // If current SOC would exceed target SOC, adjust target SOC upward
+        if (clampedSoc > _targetSOC.value) {
+            _targetSOC.value = clampedSoc
+            preferences.edit().putFloat("targetSOC", clampedSoc).apply()
+        }
+        
+        _currentSOC.value = clampedSoc
+        preferences.edit().putFloat("currentSOC", clampedSoc).apply()
     }
     
     fun setTargetSOC(soc: Float) {
-        _targetSOC.value = soc
-        preferences.edit().putFloat("targetSOC", soc).apply()
+        val clampedSoc = soc.coerceIn(0f, 100f)
+        
+        // If target SOC would be less than current SOC, adjust current SOC downward
+        if (clampedSoc < _currentSOC.value) {
+            _currentSOC.value = clampedSoc
+            preferences.edit().putFloat("currentSOC", clampedSoc).apply()
+        }
+        
+        _targetSOC.value = clampedSoc
+        preferences.edit().putFloat("targetSOC", clampedSoc).apply()
+    }
+    
+    // Helper function to check if current SOC configuration is valid
+    fun isSOCConfigurationValid(): Boolean {
+        return _currentSOC.value <= _targetSOC.value
+    }
+    
+    // Get validation message for current SOC state
+    fun getSOCValidationMessage(): String? {
+        return when {
+            _currentSOC.value > _targetSOC.value -> "Current charge cannot exceed target charge"
+            _targetSOC.value - _currentSOC.value < 1f -> "Target charge should be higher than current charge"
+            else -> null
+        }
     }
 }

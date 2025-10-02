@@ -33,6 +33,12 @@ fun MainScreen(
     val targetSOC = settingsManager.targetSOC.value
     var currentSOCText by remember { mutableStateOf(currentSOC.roundToInt().toString()) }
     var targetSOCText by remember { mutableStateOf(targetSOC.roundToInt().toString()) }
+    
+    // Validation states
+    var currentSOCError by remember { mutableStateOf<String?>(null) }
+    var targetSOCError by remember { mutableStateOf<String?>(null) }
+    val isConfigurationValid = settingsManager.isSOCConfigurationValid()
+    val validationMessage = settingsManager.getSOCValidationMessage()
 
     // go-eCharger states
     val goEChargerApi = remember { GoEChargerApi() }
@@ -112,9 +118,25 @@ fun MainScreen(
                             value = currentSOCText,
                             onValueChange = { newValue ->
                                 currentSOCText = newValue
-                                newValue.toFloatOrNull()?.let { value ->
-                                    if (value in 0f..100f) {
-                                        settingsManager.setCurrentSOC(value)
+                                currentSOCError = null // Clear previous error
+                                
+                                val floatValue = newValue.toFloatOrNull()
+                                when {
+                                    newValue.isBlank() -> {
+                                        currentSOCError = "Required"
+                                    }
+                                    floatValue == null -> {
+                                        currentSOCError = "Invalid number"
+                                    }
+                                    floatValue < 0f -> {
+                                        currentSOCError = "Cannot be negative"
+                                    }
+                                    floatValue > 100f -> {
+                                        currentSOCError = "Cannot exceed 100%"
+                                    }
+                                    else -> {
+                                        settingsManager.setCurrentSOC(floatValue)
+                                        currentSOCError = null
                                     }
                                 }
                             },
@@ -123,6 +145,7 @@ fun MainScreen(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.End,
                                 color = when {
+                                    currentSOCError != null -> Color.Red
                                     currentSOC < 20 -> Color.Red
                                     currentSOC < 50 -> Color(0xFFFF8C00)
                                     else -> Color.Green
@@ -130,18 +153,25 @@ fun MainScreen(
                             ),
                             suffix = { Text(" %", style = MaterialTheme.typography.bodySmall) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true
+                            singleLine = true,
+                            isError = currentSOCError != null,
+                            supportingText = currentSOCError?.let { error ->
+                                { Text(text = error, color = Color.Red, style = MaterialTheme.typography.bodySmall) }
+                            }
                         )
                     }
 
                     Slider(
                         value = currentSOC,
-                        onValueChange = { settingsManager.setCurrentSOC(it) },
+                        onValueChange = { 
+                            settingsManager.setCurrentSOC(it)
+                            currentSOCError = null // Clear any text field errors when using slider
+                        },
                         valueRange = 0f..100f,
                         modifier = Modifier.fillMaxWidth(),
                         colors = SliderDefaults.colors(
-                            thumbColor = Color(0xFFFF8C00),
-                            activeTrackColor = Color(0xFFFF8C00)
+                            thumbColor = if (currentSOCError != null) Color.Red else Color(0xFFFF8C00),
+                            activeTrackColor = if (currentSOCError != null) Color.Red else Color(0xFFFF8C00)
                         )
                     )
                 }
@@ -165,9 +195,25 @@ fun MainScreen(
                             value = targetSOCText,
                             onValueChange = { newValue ->
                                 targetSOCText = newValue
-                                newValue.toFloatOrNull()?.let { value ->
-                                    if (value in 0f..100f) {
-                                        settingsManager.setTargetSOC(value)
+                                targetSOCError = null // Clear previous error
+                                
+                                val floatValue = newValue.toFloatOrNull()
+                                when {
+                                    newValue.isBlank() -> {
+                                        targetSOCError = "Required"
+                                    }
+                                    floatValue == null -> {
+                                        targetSOCError = "Invalid number"
+                                    }
+                                    floatValue < 0f -> {
+                                        targetSOCError = "Cannot be negative"
+                                    }
+                                    floatValue > 100f -> {
+                                        targetSOCError = "Cannot exceed 100%"
+                                    }
+                                    else -> {
+                                        settingsManager.setTargetSOC(floatValue)
+                                        targetSOCError = null
                                     }
                                 }
                             },
@@ -176,6 +222,7 @@ fun MainScreen(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.End,
                                 color = when {
+                                    targetSOCError != null -> Color.Red
                                     targetSOC < 20 -> Color.Red
                                     targetSOC < 50 -> Color(0xFFFF8C00)
                                     else -> Color.Green
@@ -183,20 +230,56 @@ fun MainScreen(
                             ),
                             suffix = { Text(" %", style = MaterialTheme.typography.bodySmall) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true
+                            singleLine = true,
+                            isError = targetSOCError != null,
+                            supportingText = targetSOCError?.let { error ->
+                                { Text(text = error, color = Color.Red, style = MaterialTheme.typography.bodySmall) }
+                            }
                         )
                     }
 
                     Slider(
                         value = targetSOC,
-                        onValueChange = { settingsManager.setTargetSOC(it) },
+                        onValueChange = { 
+                            settingsManager.setTargetSOC(it)
+                            targetSOCError = null // Clear any text field errors when using slider
+                        },
                         valueRange = 0f..100f,
                         modifier = Modifier.fillMaxWidth(),
                         colors = SliderDefaults.colors(
-                            thumbColor = Color.Green,
-                            activeTrackColor = Color.Green
+                            thumbColor = if (targetSOCError != null) Color.Red else Color.Green,
+                            activeTrackColor = if (targetSOCError != null) Color.Red else Color.Green
                         )
                     )
+                }
+                
+                // Add validation feedback if there's an issue
+                if (validationMessage != null) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFFFF3CD) // Light yellow warning background
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "⚠️",
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(
+                                text = "Auto-adjusted: $validationMessage",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF856404), // Dark yellow text
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -218,11 +301,18 @@ fun MainScreen(
                     fontWeight = FontWeight.Medium
                 )
 
-                if (targetSOC <= currentSOC) {
+                if (targetSOC < currentSOC) {
                     Text(
-                        text = stringResource(R.string.target_lower_warning),
+                        text = "Target charge is lower than current charge. Please adjust values.",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium
+                    )
+                } else if (targetSOC == currentSOC) {
+                    Text(
+                        text = "Target charge equals current charge - no charging needed.",
+                        color = Color(0xFFFF8C00),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
                     )
                 } else {
                     val socIncrease = targetSOC - currentSOC
