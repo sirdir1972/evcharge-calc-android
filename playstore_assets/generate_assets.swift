@@ -203,10 +203,7 @@ func generateFeatureGraphic() -> CGImage? {
     // Draw car & charger illustration on right
     drawCarAndCharger(context: ctx, centerX: 820, centerY: 240, size: 420)
     
-    // Render Titles on left using CoreText / Cocoa
-    let nsContext = NSGraphicsContext(cgContext: ctx, flipped: false)
-    NSGraphicsContext.current = nsContext
-    
+    // Feature graphic texts
     let title = "EV Charge Calc"
     let titleAttrs: [NSAttributedString.Key: Any] = [
         .font: NSFont.systemFont(ofSize: 58, weight: .bold),
@@ -214,14 +211,14 @@ func generateFeatureGraphic() -> CGImage? {
     ]
     (title as NSString).draw(at: NSPoint(x: 64, y: 285), withAttributes: titleAttrs)
     
-    let subtitle = "Präziser Ladelimit- & Energierechner"
+    let subtitle = "Smart EV Charging Energy & Limit Calculator"
     let subtitleAttrs: [NSAttributedString.Key: Any] = [
         .font: NSFont.systemFont(ofSize: 26, weight: .semibold),
         .foregroundColor: NSColor(red: 220/255.0, green: 252/255.0, blue: 231/255.0, alpha: 1.0)
     ]
     (subtitle as NSString).draw(at: NSPoint(x: 66, y: 235), withAttributes: subtitleAttrs)
     
-    let tag = "⚡ SOC-Zielwert  •  Akku-Degradation  •  go-e Charger Anbindung"
+    let tag = "⚡ Target SOC  •  Battery Health (SOH)  •  go-e Charger Integration"
     let tagAttrs: [NSAttributedString.Key: Any] = [
         .font: NSFont.systemFont(ofSize: 18, weight: .medium),
         .foregroundColor: NSColor(white: 1.0, alpha: 0.85)
@@ -310,7 +307,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
     ctx.setFillColor(CGColor(red: 30/255.0, green: 41/255.0, blue: 59/255.0, alpha: 1.0))
     ctx.fill(CGRect(x: screenRect.minX, y: topBarY, width: screenRect.width, height: topBarH))
     
-    let appTitle = screenType == 3 ? "Einstellungen" : "EVCharge Calc"
+    let appTitle = screenType == 3 ? "Settings" : "EVCharge Calc"
     let appTitleAttrs: [NSAttributedString.Key: Any] = [
         .font: NSFont.systemFont(ofSize: 38, weight: .bold),
         .foregroundColor: NSColor.white
@@ -335,7 +332,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         ctx.drawLinearGradient(heroGrad, start: CGPoint(x: heroRect.minX, y: heroRect.maxY), end: CGPoint(x: heroRect.maxX, y: heroRect.minY), options: [])
         ctx.restoreGState()
         
-        let resLabel = "Benötigte Ladeenergie"
+        let resLabel = "Required Energy"
         let resLabelAttrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: 26, weight: .semibold),
             .foregroundColor: NSColor(white: 1.0, alpha: 0.9)
@@ -349,7 +346,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         ]
         (energyValue as NSString).draw(at: NSPoint(x: heroRect.minX + 36, y: heroRect.maxY - 170), withAttributes: energyAttrs)
         
-        let energySub = screenType == 2 ? "+60% SOC (20% ➔ 80%)  •  Inkl. 10% Ladeverlust" : "+45% SOC (35% ➔ 80%)  •  Inkl. 10% Ladeverlust"
+        let energySub = screenType == 2 ? "+60% SOC (20% ➔ 80%)  •  Incl. 10% charging losses" : "+45% SOC (35% ➔ 80%)  •  Incl. 10% charging losses"
         let energySubAttrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: 22, weight: .medium),
             .foregroundColor: NSColor(white: 1.0, alpha: 0.85)
@@ -363,7 +360,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         ctx.addPath(slidersPath)
         ctx.fillPath()
         
-        let curLabel = "Aktueller Akkustand (SOC):  20 %"
+        let curLabel = "Current Battery (SOC):  20 %"
         let curAttrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: 26, weight: .bold),
             .foregroundColor: NSColor.white
@@ -377,7 +374,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         ctx.fill(CGRect(x: slidersRect.minX + 30, y: slidersRect.maxY - 110, width: (slidersRect.width - 60) * 0.2, height: 16))
         ctx.fillEllipse(in: CGRect(x: slidersRect.minX + 30 + (slidersRect.width - 60) * 0.2 - 20, y: slidersRect.maxY - 110 - 12, width: 40, height: 40))
         
-        let targetLabel = "Ziel-Akkustand (SOC):  80 %"
+        let targetLabel = "Target Battery (SOC):  80 %"
         (targetLabel as NSString).draw(at: NSPoint(x: slidersRect.minX + 30, y: slidersRect.maxY - 220), withAttributes: curAttrs)
         
         // Target SOC Slider Bar
@@ -390,7 +387,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         // Quick Presets Buttons
         let presetsY = slidersRect.minY - 260
         let presetW = (screenRect.width - 72 - 32) / 3
-        let presets = ["80% Alltag", "90% Mittel", "100% Reise"]
+        let presets = ["80% Daily", "90% Top Up", "100% Trip"]
         for (i, p) in presets.enumerated() {
             let pRect = CGRect(x: screenRect.minX + 36 + CGFloat(i) * (presetW + 16), y: presetsY, width: presetW, height: 95)
             let pPath = CGPath(roundedRect: pRect, cornerWidth: 20, cornerHeight: 20, transform: nil)
@@ -415,7 +412,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         ctx.addPath(wbPath)
         ctx.fillPath()
         
-        let wbText = "⚡ Limit an go-e Charger senden"
+        let wbText = "⚡ Send Limit to go-e Charger"
         let wbAttrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: 28, weight: .bold),
             .foregroundColor: NSColor.white
@@ -426,10 +423,10 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
     } else if screenType == 3 {
         // Settings Screen Mockup
         let items = [
-            ("Nettokapazität der Batterie", "77.0 kWh", "Nutzbare Kapazität Ihres Fahrzeugs"),
-            ("Akkugesundheit (SOH)", "96 %", "Berücksichtigt Batteriealterung"),
-            ("Ladeverluste (Wirkungsgrad)", "10 %", "Kompensiert Leitungs- & Wandlungsverlust"),
-            ("go-e Charger IP-Adresse", "192.168.1.150", "Lokale IP-Adresse der Wallbox im WLAN")
+            ("Usable Battery Capacity", "77.0 kWh", "Net battery capacity of your EV"),
+            ("State of Health (SOH)", "96 %", "Accounts for battery degradation over time"),
+            ("Charging Losses", "10 %", "Compensates for AC/DC conversion losses"),
+            ("go-e Charger IP Address", "192.168.1.150", "Local IP of your wallbox on home Wi-Fi")
         ]
         
         var curY = topBarY - 180
@@ -476,15 +473,15 @@ if let feature = generateFeatureGraphic() {
     saveCGImageAsPNG(cgImage: feature, path: "\(assetsDir)/feature_graphic_1024x500.png")
 }
 
-if let s1 = generateScreenshotCard(title: "Präzise Energieberechnung", subtitle: "Exakt die benötigten kWh für Ihr Ladeziel", screenType: 1) {
+if let s1 = generateScreenshotCard(title: "Precise Energy Calculation", subtitle: "Exact kWh required to reach your target SOC", screenType: 1) {
     saveCGImageAsPNG(cgImage: s1, path: "\(assetsDir)/screenshot_1_calculator.png")
 }
 
-if let s2 = generateScreenshotCard(title: "1-Klick Schnell-Presets", subtitle: "80% Alltag, 90% Mittel oder 100% Reise", screenType: 2) {
+if let s2 = generateScreenshotCard(title: "1-Tap Quick Presets", subtitle: "80% Daily, 90% Top Up, or 100% Road Trip", screenType: 2) {
     saveCGImageAsPNG(cgImage: s2, path: "\(assetsDir)/screenshot_2_presets.png")
 }
 
-if let s3 = generateScreenshotCard(title: "Fahrzeug & Akku anpassen", subtitle: "Batteriekapazität, SOH & Ladeverluste konfigurieren", screenType: 3) {
+if let s3 = generateScreenshotCard(title: "Custom EV Battery Settings", subtitle: "Configure usable capacity, SOH & charging losses", screenType: 3) {
     saveCGImageAsPNG(cgImage: s3, path: "\(assetsDir)/screenshot_3_settings.png")
 }
 
