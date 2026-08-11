@@ -398,62 +398,61 @@ fun MainScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column {
-                                    Text(
-                                        text = "Energy limit: %.1f kWh".format(energyNeededRounded),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = "(${energyNeededWh.toInt()} Wh)",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
+                                Text(
+                                    text = "Energy limit: %.1f kWh".format(energyNeededRounded),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "(${energyNeededWh.toInt()} Wh)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
-                                Button(
-                                    onClick = {
-                                        scope.launch {
-                                            pushingLimit = true
-                                            pushResult = null
+                            Button(
+                                onClick = {
+                                    scope.launch {
+                                        pushingLimit = true
+                                        pushResult = null
 
-                                            // Set energy limit only (don't change current setting)
-                                            val energyResult = goEChargerApi.setEnergyLimit(
-                                                settingsManager.goEChargerIpAddress.value,
-                                                energyNeededWh
-                                            )
+                                        // Set energy limit only (don't change current setting)
+                                        val energyResult = goEChargerApi.setEnergyLimit(
+                                            settingsManager.goEChargerIpAddress.value,
+                                            energyNeededWh
+                                        )
 
-                                            pushingLimit = false
+                                        pushingLimit = false
 
-                                            if (energyResult.success) {
-                                                pushResult = "✓ Energy limit set successfully"
-                                            } else {
-                                                pushResult = "✗ ${energyResult.error ?: "Failed"}"
-                                            }
+                                        if (energyResult.success) {
+                                            pushResult = "✓ Energy limit set successfully"
+                                        } else {
+                                            pushResult = "✗ ${energyResult.error ?: "Failed"}"
                                         }
-                                    },
-                                    enabled = !pushingLimit,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary
-                                    )
-                                ) {
-                                    if (pushingLimit) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(16.dp),
-                                            strokeWidth = 2.dp,
-                                            color = MaterialTheme.colorScheme.onPrimary
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Pushing...")
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.Send,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Set Energy Limit")
                                     }
+                                },
+                                enabled = !pushingLimit,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
+                                if (pushingLimit) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 2.dp,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Pushing...")
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.Send,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Set Energy Limit", fontWeight = FontWeight.SemiBold)
                                 }
                             }
 
@@ -581,12 +580,12 @@ fun MainScreen(
 
                 OutlinedButton(
                     onClick = {
-                        settingsManager.setTargetSOC(100f)
+                        settingsManager.setTargetSOC(90f)
                     },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Road Trip 100%",
+                        text = "Top Up 90%",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
@@ -595,12 +594,12 @@ fun MainScreen(
 
                 OutlinedButton(
                     onClick = {
-                        settingsManager.setTargetSOC(90f)
+                        settingsManager.setTargetSOC(100f)
                     },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Top Up 90%",
+                        text = "Road Trip 100%",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
