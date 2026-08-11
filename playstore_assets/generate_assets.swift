@@ -314,7 +314,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
     ]
     (appTitle as NSString).draw(at: NSPoint(x: screenRect.minX + 40, y: topBarY + 36), withAttributes: appTitleAttrs)
     
-    if screenType == 1 || screenType == 2 {
+    if screenType == 1 || screenType == 2 || screenType == 3 {
         // Main Screen UI Elements:
         // Result Card (Hero)
         let heroRect = CGRect(x: screenRect.minX + 36, y: topBarY - 340, width: screenRect.width - 72, height: 300)
@@ -360,7 +360,7 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         ctx.addPath(slidersPath)
         ctx.fillPath()
         
-        let curLabel = "Current Battery (SOC):  20 %"
+        let curLabel = screenType == 2 ? "Current Battery (SOC):  20 %" : "Current Battery (SOC):  35 %"
         let curAttrs: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: 26, weight: .bold),
             .foregroundColor: NSColor.white
@@ -368,11 +368,12 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         (curLabel as NSString).draw(at: NSPoint(x: slidersRect.minX + 30, y: slidersRect.maxY - 60), withAttributes: curAttrs)
         
         // Current SOC Slider Bar
+        let curPct: CGFloat = screenType == 2 ? 0.20 : 0.35
         ctx.setFillColor(CGColor(red: 51/255.0, green: 65/255.0, blue: 85/255.0, alpha: 1.0))
         ctx.fill(CGRect(x: slidersRect.minX + 30, y: slidersRect.maxY - 110, width: slidersRect.width - 60, height: 16))
         ctx.setFillColor(CGColor(red: 34/255.0, green: 197/255.0, blue: 94/255.0, alpha: 1.0))
-        ctx.fill(CGRect(x: slidersRect.minX + 30, y: slidersRect.maxY - 110, width: (slidersRect.width - 60) * 0.2, height: 16))
-        ctx.fillEllipse(in: CGRect(x: slidersRect.minX + 30 + (slidersRect.width - 60) * 0.2 - 20, y: slidersRect.maxY - 110 - 12, width: 40, height: 40))
+        ctx.fill(CGRect(x: slidersRect.minX + 30, y: slidersRect.maxY - 110, width: (slidersRect.width - 60) * curPct, height: 16))
+        ctx.fillEllipse(in: CGRect(x: slidersRect.minX + 30 + (slidersRect.width - 60) * curPct - 20, y: slidersRect.maxY - 110 - 12, width: 40, height: 40))
         
         let targetLabel = "Target Battery (SOC):  80 %"
         (targetLabel as NSString).draw(at: NSPoint(x: slidersRect.minX + 30, y: slidersRect.maxY - 220), withAttributes: curAttrs)
@@ -420,7 +421,26 @@ func generateScreenshotCard(title: String, subtitle: String, screenType: Int) ->
         let wbTextRect = (wbText as NSString).boundingRect(with: NSSize(width: 700, height: 50), options: .usesLineFragmentOrigin, attributes: wbAttrs)
         (wbText as NSString).draw(at: NSPoint(x: wbRect.minX + (wbRect.width - wbTextRect.width) / 2, y: wbRect.minY + 38), withAttributes: wbAttrs)
         
-    } else if screenType == 3 {
+        // If Screen 3: draw Success Confirmation Toast
+        if screenType == 3 {
+            let toastRect = CGRect(x: screenRect.minX + 50, y: wbRect.minY - 130, width: screenRect.width - 100, height: 90)
+            let toastPath = CGPath(roundedRect: toastRect, cornerWidth: 18, cornerHeight: 18, transform: nil)
+            ctx.setFillColor(CGColor(red: 6/255.0, green: 78/255.0, blue: 59/255.0, alpha: 0.95))
+            ctx.setStrokeColor(CGColor(red: 16/255.0, green: 185/255.0, blue: 129/255.0, alpha: 1.0))
+            ctx.setLineWidth(2)
+            ctx.addPath(toastPath)
+            ctx.drawPath(using: .fillStroke)
+            
+            let toastText = "✓ Limit (39800 Wh) sent to Wallbox (192.168.1.150)"
+            let toastAttrs: [NSAttributedString.Key: Any] = [
+                .font: NSFont.systemFont(ofSize: 22, weight: .bold),
+                .foregroundColor: NSColor(red: 167/255.0, green: 243/255.0, blue: 208/255.0, alpha: 1.0)
+            ]
+            let tRect = (toastText as NSString).boundingRect(with: NSSize(width: 700, height: 40), options: .usesLineFragmentOrigin, attributes: toastAttrs)
+            (toastText as NSString).draw(at: NSPoint(x: toastRect.minX + (toastRect.width - tRect.width) / 2, y: toastRect.minY + 30), withAttributes: toastAttrs)
+        }
+        
+    } else if screenType == 4 {
         // Settings Screen Mockup
         let items = [
             ("Usable Battery Capacity", "77.0 kWh", "Net battery capacity of your EV"),
@@ -481,8 +501,14 @@ if let s2 = generateScreenshotCard(title: "1-Tap Quick Presets", subtitle: "80% 
     saveCGImageAsPNG(cgImage: s2, path: "\(assetsDir)/screenshot_2_presets.png")
 }
 
-if let s3 = generateScreenshotCard(title: "Custom EV Battery Settings", subtitle: "Configure usable capacity, SOH & charging losses", screenType: 3) {
-    saveCGImageAsPNG(cgImage: s3, path: "\(assetsDir)/screenshot_3_settings.png")
+if let s3 = generateScreenshotCard(title: "go-e Charger Integration", subtitle: "Send calculated energy limit directly to wallbox", screenType: 3) {
+    saveCGImageAsPNG(cgImage: s3, path: "\(assetsDir)/screenshot_3_wallbox.png")
 }
+
+if let s4 = generateScreenshotCard(title: "Custom EV Battery Settings", subtitle: "Configure usable capacity, SOH & charging losses", screenType: 4) {
+    saveCGImageAsPNG(cgImage: s4, path: "\(assetsDir)/screenshot_4_settings.png")
+}
+
+print("All 4 Play Store screenshots generated successfully!")
 
 print("All Play Store assets generated successfully!")
