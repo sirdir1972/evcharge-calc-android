@@ -53,4 +53,5 @@
     <string name="error_target_higher_than_current">Zielladestand sollte höher als der aktuelle Ladestand sein</string>
     <string name="language">Sprache</string>
     <string name="system_default">Systemstandard</string>
+    <string name="incl_losses_format">inkl. %1$d%% Verlust</string>
 </resources>

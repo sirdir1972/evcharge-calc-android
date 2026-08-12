@@ -407,7 +407,7 @@ fun MainScreen(
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "${currentSOC.roundToInt()}% ➔ ${targetSOC.roundToInt()}% (inkl. ${"%.0f".format(settingsManager.chargeLosses.value)}% Verlust)",
+                                text = "${currentSOC.roundToInt()}% ➔ ${targetSOC.roundToInt()}% (${stringResource(R.string.incl_losses_format, settingsManager.chargeLosses.value.roundToInt())})",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
