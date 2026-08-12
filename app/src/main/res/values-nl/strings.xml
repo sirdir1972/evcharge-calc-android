@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">EV Laad Calculator</string>
+    <string name="current_charge">Huidige lading</string>
+    <string name="target_charge">Doellading</string>
+    <string name="charge_required">Vereiste lading</string>
+    <string name="energy_needed">Benodigde energie</string>
+    <string name="soc_increase">SOC-toename</string>
+    <string name="effective_capacity">Effectieve capaciteit</string>
+    <string name="settings">Instellingen</string>
+    <string name="open_settings">Instellingen openen</string>
+    <string name="battery_capacity">Batterijcapaciteit</string>
+    <string name="state_of_health">Gezondheidstoestand</string>
+    <string name="charge_losses">Laadverliezen</string>
+    <string name="quick_presets">Snelle voorkeuren</string>
+    <string name="preset_daily_80">Dagelijks 80%</string>
+    <string name="preset_top_up_90">Bijladen 90%</string>
+    <string name="preset_road_trip_100">Reis 100%</string>
+    <string name="target_lower_warning">Doellading is lager dan huidige lading. Pas de waarden aan.</string>
+    <string name="target_equal_info">Doellading is gelijk aan huidige lading - opladen niet nodig.</string>
+    <string name="auto_adjusted_format">Automatisch aangepast: %1$s</string>
+    <string name="ev_settings">EV-instellingen</string>
+    <string name="done">Gereed</string>
+    <string name="back">Terug</string>
+    <string name="battery_configuration">Batterijconfiguratie</string>
+    <string name="calculated_values">Berekende waarden</string>
+    <string name="usable_capacity">Bruikbare capaciteit (10-90%)</string>
+    <string name="settings_description">Pas deze waarden aan volgens de specificaties van uw EV. Batterijcapaciteit is de totale kWh, SOH geeft batterijdegradatie in de tijd weer en laadverliezen houden rekening met laadinefficiëntie.</string>
+    
+    <!-- go-eCharger -->
+    <string name="goe_integration">go-eCharger integratie</string>
+    <string name="goe_control_title">go-eCharger bediening</string>
+    <string name="enable_goe">go-eCharger inschakelen</string>
+    <string name="enable_goe_desc">Laadlimieten doorsturen naar lader</string>
+    <string name="charger_ip_address">IP-adres van lader</string>
+    <string name="energy_limit_format">Energielimiet: %1$.1f kWh</string>
+    <string name="energy_limit_wh_format">(%1$d Wh)</string>
+    <string name="btn_set_energy_limit">Energielimiet instellen</string>
+    <string name="btn_pushing">Verzenden…</string>
+    <string name="goe_limit_success">✓ Energielimiet succesvol ingesteld</string>
+    <string name="test">Testen</string>
+    <string name="testing">Testen…</string>
+    <string name="connection_status">Verbindingsstatus:</string>
+    <string name="not_tested">Niet getest</string>
+    <string name="connected">Verbonden</string>
+    <string name="failed">Mislukt</string>
+
+    <!-- Errors & Validation -->
+    <string name="error_required">Verplicht</string>
+    <string name="error_invalid_number">Ongeldig getal</string>
+    <string name="error_cannot_be_negative">Mag niet negatief zijn</string>
+    <string name="error_cannot_exceed_100">Mag niet hoger zijn dan 100%</string>
+    <string name="error_current_exceeds_target">Huidige lading kan niet hoger zijn dan doellading</string>
+    <string name="error_target_higher_than_current">Doellading moet hoger zijn dan huidige lading</string>
+    <string name="language">Taal</string>
+    <string name="system_default">Systeemstandaard</string>
+</resources>

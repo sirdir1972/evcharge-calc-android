@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">EV Lade-Rechner</string>
+    <string name="current_charge">Aktueller Ladestand</string>
+    <string name="target_charge">Zielladestand</string>
+    <string name="charge_required">Erforderliche Ladung</string>
+    <string name="energy_needed">Benötigte Energie</string>
+    <string name="soc_increase">SOC-Zuwachs</string>
+    <string name="effective_capacity">Effektive Kapazität</string>
+    <string name="settings">Einstellungen</string>
+    <string name="open_settings">Einstellungen öffnen</string>
+    <string name="battery_capacity">Batteriekapazität</string>
+    <string name="state_of_health">Gesundheitszustand</string>
+    <string name="charge_losses">Ladeverluste</string>
+    <string name="quick_presets">Schnellwahl</string>
+    <string name="preset_daily_80">Alltag 80%</string>
+    <string name="preset_top_up_90">Nachladen 90%</string>
+    <string name="preset_road_trip_100">Reise 100%</string>
+    <string name="target_lower_warning">Der Zielladestand ist niedriger als der aktuelle Ladestand. Bitte Werte anpassen.</string>
+    <string name="target_equal_info">Zielladestand entspricht dem aktuellen Ladestand - kein Laden erforderlich.</string>
+    <string name="auto_adjusted_format">Automatisch angepasst: %1$s</string>
+    <string name="ev_settings">EV-Einstellungen</string>
+    <string name="done">Fertig</string>
+    <string name="back">Zurück</string>
+    <string name="battery_configuration">Batterie-Konfiguration</string>
+    <string name="calculated_values">Berechnete Werte</string>
+    <string name="usable_capacity">Nutzbare Kapazität (10-90%)</string>
+    <string name="settings_description">Passen Sie diese Werte an die Spezifikationen Ihres Elektrofahrzeugs an. Die Batteriekapazität ist die gesamte kWh-Angabe, der SOH steht für die Batteriedegradation über die Zeit und die Ladeverluste berücksichtigen Ladeineffizienzen.</string>
+    
+    <!-- go-eCharger -->
+    <string name="goe_integration">go-eCharger Integration</string>
+    <string name="goe_control_title">go-eCharger Steuerung</string>
+    <string name="enable_goe">go-eCharger aktivieren</string>
+    <string name="enable_goe_desc">Ladelimit an die Ladestation senden</string>
+    <string name="charger_ip_address">IP-Adresse der Ladestation</string>
+    <string name="energy_limit_format">Energielimit: %1$.1f kWh</string>
+    <string name="energy_limit_wh_format">(%1$d Wh)</string>
+    <string name="btn_set_energy_limit">Energielimit setzen</string>
+    <string name="btn_pushing">Wird übertragen…</string>
+    <string name="goe_limit_success">✓ Energielimit erfolgreich gesetzt</string>
+    <string name="test">Testen</string>
+    <string name="testing">Wird getestet…</string>
+    <string name="connection_status">Verbindungsstatus:</string>
+    <string name="not_tested">Nicht getestet</string>
+    <string name="connected">Verbunden</string>
+    <string name="failed">Fehlgeschlagen</string>
+
+    <!-- Errors & Validation -->
+    <string name="error_required">Erforderlich</string>
+    <string name="error_invalid_number">Ungültige Zahl</string>
+    <string name="error_cannot_be_negative">Darf nicht negativ sein</string>
+    <string name="error_cannot_exceed_100">Darf 100% nicht überschreiten</string>
+    <string name="error_current_exceeds_target">Aktueller Ladestand kann den Zielladestand nicht überschreiten</string>
+    <string name="error_target_higher_than_current">Zielladestand sollte höher als der aktuelle Ladestand sein</string>
+    <string name="language">Sprache</string>
+    <string name="system_default">Systemstandard</string>
+</resources>

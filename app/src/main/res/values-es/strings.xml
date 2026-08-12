@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Calculadora de Carga VE</string>
+    <string name="current_charge">Carga actual</string>
+    <string name="target_charge">Carga objetivo</string>
+    <string name="charge_required">Carga requerida</string>
+    <string name="energy_needed">Energía necesaria</string>
+    <string name="soc_increase">Aumento de SOC</string>
+    <string name="effective_capacity">Capacidad efectiva</string>
+    <string name="settings">Ajustes</string>
+    <string name="open_settings">Abrir ajustes</string>
+    <string name="battery_capacity">Capacidad de batería</string>
+    <string name="state_of_health">Estado de salud</string>
+    <string name="charge_losses">Pérdidas de carga</string>
+    <string name="quick_presets">Preajustes rápidos</string>
+    <string name="preset_daily_80">Diario 80%</string>
+    <string name="preset_top_up_90">Recarga 90%</string>
+    <string name="preset_road_trip_100">Viaje 100%</string>
+    <string name="target_lower_warning">La carga objetivo es menor que la carga actual. Por favor ajuste los valores.</string>
+    <string name="target_equal_info">La carga objetivo es igual a la carga actual; no se requiere recarga.</string>
+    <string name="auto_adjusted_format">Ajustado automáticamente: %1$s</string>
+    <string name="ev_settings">Ajustes VE</string>
+    <string name="done">Listo</string>
+    <string name="back">Atrás</string>
+    <string name="battery_configuration">Configuración de batería</string>
+    <string name="calculated_values">Valores calculados</string>
+    <string name="usable_capacity">Capacidad utilizable (10-90%)</string>
+    <string name="settings_description">Ajuste estos valores según las especificaciones de su vehículo eléctrico. La capacidad es el valor total en kWh, el SOH representa la degradación de la batería con el tiempo y las pérdidas consideran las ineficiencias de carga.</string>
+    
+    <!-- go-eCharger -->
+    <string name="goe_integration">Integración go-eCharger</string>
+    <string name="goe_control_title">Control de go-eCharger</string>
+    <string name="enable_goe">Activar go-eCharger</string>
+    <string name="enable_goe_desc">Enviar límites de carga al cargador</string>
+    <string name="charger_ip_address">Dirección IP del cargador</string>
+    <string name="energy_limit_format">Límite de energía: %1$.1f kWh</string>
+    <string name="energy_limit_wh_format">(%1$d Wh)</string>
+    <string name="btn_set_energy_limit">Establecer límite de energía</string>
+    <string name="btn_pushing">Enviando…</string>
+    <string name="goe_limit_success">✓ Límite de energía establecido con éxito</string>
+    <string name="test">Probar</string>
+    <string name="testing">Probando…</string>
+    <string name="connection_status">Estado de conexión:</string>
+    <string name="not_tested">No probado</string>
+    <string name="connected">Conectado</string>
+    <string name="failed">Fallido</string>
+
+    <!-- Errors & Validation -->
+    <string name="error_required">Requerido</string>
+    <string name="error_invalid_number">Número no válido</string>
+    <string name="error_cannot_be_negative">No puede ser negativo</string>
+    <string name="error_cannot_exceed_100">No puede superar el 100%</string>
+    <string name="error_current_exceeds_target">La carga actual no puede superar la carga objetivo</string>
+    <string name="error_target_higher_than_current">La carga objetivo debe ser mayor que la carga actual</string>
+    <string name="language">Idioma</string>
+    <string name="system_default">Predeterminado del sistema</string>
+</resources>

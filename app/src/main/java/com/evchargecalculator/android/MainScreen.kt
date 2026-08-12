@@ -37,14 +37,25 @@ fun MainScreen(
     // Validation states
     var currentSOCError by remember { mutableStateOf<String?>(null) }
     var targetSOCError by remember { mutableStateOf<String?>(null) }
-    val isConfigurationValid = settingsManager.isSOCConfigurationValid()
-    val validationMessage = settingsManager.getSOCValidationMessage()
+    val validationError = settingsManager.getSOCValidationError()
+    val validationMessage = when (validationError) {
+        SettingsManager.SOCValidationError.CURRENT_EXCEEDS_TARGET -> stringResource(R.string.error_current_exceeds_target)
+        SettingsManager.SOCValidationError.TARGET_TOO_CLOSE -> stringResource(R.string.error_target_higher_than_current)
+        null -> null
+    }
+
+    // Localized error strings
+    val errorRequired = stringResource(R.string.error_required)
+    val errorInvalidNumber = stringResource(R.string.error_invalid_number)
+    val errorCannotBeNegative = stringResource(R.string.error_cannot_be_negative)
+    val errorCannotExceed100 = stringResource(R.string.error_cannot_exceed_100)
 
     // go-eCharger states
     val goEChargerApi = remember { GoEChargerApi() }
     val scope = rememberCoroutineScope()
     var pushingLimit by remember { mutableStateOf(false) }
     var pushResult by remember { mutableStateOf<String?>(null) }
+    val pushSuccessMsg = stringResource(R.string.goe_limit_success)
 
     // Clear push result after 5 seconds
     LaunchedEffect(pushResult) {
@@ -65,9 +76,9 @@ fun MainScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         // Header
         Row(
@@ -75,22 +86,29 @@ fun MainScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = stringResource(R.string.app_name),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Column {
+                Text(
+                    text = stringResource(R.string.app_name),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "%.1f kWh (${"%.0f".format(settingsManager.stateOfHealth.value)}%% SOH)".format(settingsManager.effectiveBatteryCapacity),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             IconButton(onClick = onSettingsClick) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
+                    contentDescription = stringResource(R.string.settings),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
 
-        // Main calculation card
+        // Main calculation card (Inputs)
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -98,11 +116,11 @@ fun MainScreen(
             )
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 // Current SOC Section
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -110,29 +128,29 @@ fun MainScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.current_charge),
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
                         )
                         
                         OutlinedTextField(
                             value = currentSOCText,
                             onValueChange = { newValue ->
                                 currentSOCText = newValue
-                                currentSOCError = null // Clear previous error
+                                currentSOCError = null
                                 
-                                val floatValue = newValue.toFloatOrNull()
+                                val floatValue = newValue.replace(',', '.').toFloatOrNull()
                                 when {
                                     newValue.isBlank() -> {
-                                        currentSOCError = "Required"
+                                        currentSOCError = errorRequired
                                     }
                                     floatValue == null -> {
-                                        currentSOCError = "Invalid number"
+                                        currentSOCError = errorInvalidNumber
                                     }
                                     floatValue < 0f -> {
-                                        currentSOCError = "Cannot be negative"
+                                        currentSOCError = errorCannotBeNegative
                                     }
                                     floatValue > 100f -> {
-                                        currentSOCError = "Cannot exceed 100%"
+                                        currentSOCError = errorCannotExceed100
                                     }
                                     else -> {
                                         settingsManager.setCurrentSOC(floatValue)
@@ -140,18 +158,18 @@ fun MainScreen(
                                     }
                                 }
                             },
-                            modifier = Modifier.width(100.dp),
-                            textStyle = MaterialTheme.typography.headlineMedium.copy(
+                            modifier = Modifier.width(96.dp),
+                            textStyle = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.End,
                                 color = when {
                                     currentSOCError != null -> Color.Red
                                     currentSOC < 20 -> Color.Red
                                     currentSOC < 50 -> Color(0xFFFF8C00)
-                                    else -> Color.Green
+                                    else -> Color(0xFF2E7D32)
                                 }
                             ),
-                            suffix = { Text(" %", style = MaterialTheme.typography.bodySmall) },
+                            suffix = { Text("%", style = MaterialTheme.typography.bodySmall) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             isError = currentSOCError != null,
@@ -165,7 +183,7 @@ fun MainScreen(
                         value = currentSOC,
                         onValueChange = { 
                             settingsManager.setCurrentSOC(it)
-                            currentSOCError = null // Clear any text field errors when using slider
+                            currentSOCError = null
                         },
                         valueRange = 0f..100f,
                         modifier = Modifier.fillMaxWidth(),
@@ -176,10 +194,10 @@ fun MainScreen(
                     )
                 }
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
 
                 // Target SOC Section
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -187,29 +205,29 @@ fun MainScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.target_charge),
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
                         )
                         
                         OutlinedTextField(
                             value = targetSOCText,
                             onValueChange = { newValue ->
                                 targetSOCText = newValue
-                                targetSOCError = null // Clear previous error
+                                targetSOCError = null
                                 
-                                val floatValue = newValue.toFloatOrNull()
+                                val floatValue = newValue.replace(',', '.').toFloatOrNull()
                                 when {
                                     newValue.isBlank() -> {
-                                        targetSOCError = "Required"
+                                        targetSOCError = errorRequired
                                     }
                                     floatValue == null -> {
-                                        targetSOCError = "Invalid number"
+                                        targetSOCError = errorInvalidNumber
                                     }
                                     floatValue < 0f -> {
-                                        targetSOCError = "Cannot be negative"
+                                        targetSOCError = errorCannotBeNegative
                                     }
                                     floatValue > 100f -> {
-                                        targetSOCError = "Cannot exceed 100%"
+                                        targetSOCError = errorCannotExceed100
                                     }
                                     else -> {
                                         settingsManager.setTargetSOC(floatValue)
@@ -217,18 +235,18 @@ fun MainScreen(
                                     }
                                 }
                             },
-                            modifier = Modifier.width(100.dp),
-                            textStyle = MaterialTheme.typography.headlineMedium.copy(
+                            modifier = Modifier.width(96.dp),
+                            textStyle = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.End,
                                 color = when {
                                     targetSOCError != null -> Color.Red
                                     targetSOC < 20 -> Color.Red
                                     targetSOC < 50 -> Color(0xFFFF8C00)
-                                    else -> Color.Green
+                                    else -> Color(0xFF2E7D32)
                                 }
                             ),
-                            suffix = { Text(" %", style = MaterialTheme.typography.bodySmall) },
+                            suffix = { Text("%", style = MaterialTheme.typography.bodySmall) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             isError = targetSOCError != null,
@@ -242,40 +260,95 @@ fun MainScreen(
                         value = targetSOC,
                         onValueChange = { 
                             settingsManager.setTargetSOC(it)
-                            targetSOCError = null // Clear any text field errors when using slider
+                            targetSOCError = null
                         },
                         valueRange = 0f..100f,
                         modifier = Modifier.fillMaxWidth(),
                         colors = SliderDefaults.colors(
-                            thumbColor = if (targetSOCError != null) Color.Red else Color.Green,
-                            activeTrackColor = if (targetSOCError != null) Color.Red else Color.Green
+                            thumbColor = if (targetSOCError != null) Color.Red else Color(0xFF2E7D32),
+                            activeTrackColor = if (targetSOCError != null) Color.Red else Color(0xFF2E7D32)
                         )
                     )
+
+                    // Quick Presets Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { settingsManager.setTargetSOC(80f) },
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp),
+                            colors = if (targetSOC == 80f) ButtonDefaults.outlinedButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                            ) else ButtonDefaults.outlinedButtonColors()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.preset_daily_80),
+                                fontSize = 12.sp,
+                                fontWeight = if (targetSOC == 80f) FontWeight.Bold else FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = { settingsManager.setTargetSOC(90f) },
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp),
+                            colors = if (targetSOC == 90f) ButtonDefaults.outlinedButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                            ) else ButtonDefaults.outlinedButtonColors()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.preset_top_up_90),
+                                fontSize = 12.sp,
+                                fontWeight = if (targetSOC == 90f) FontWeight.Bold else FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1
+                            )
+                        }
+
+                        OutlinedButton(
+                            onClick = { settingsManager.setTargetSOC(100f) },
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp),
+                            colors = if (targetSOC == 100f) ButtonDefaults.outlinedButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                            ) else ButtonDefaults.outlinedButtonColors()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.preset_road_trip_100),
+                                fontSize = 12.sp,
+                                fontWeight = if (targetSOC == 100f) FontWeight.Bold else FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1
+                            )
+                        }
+                    }
                 }
                 
                 // Add validation feedback if there's an issue
                 if (validationMessage != null) {
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFFFF3CD) // Light yellow warning background
+                            containerColor = Color(0xFFFFF3CD)
                         )
                     ) {
                         Row(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = "⚠️",
-                                fontSize = 16.sp,
-                                modifier = Modifier.padding(end = 8.dp)
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(end = 6.dp)
                             )
                             Text(
-                                text = "Auto-adjusted: $validationMessage",
+                                text = stringResource(R.string.auto_adjusted_format, validationMessage),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFF856404), // Dark yellow text
+                                color = Color(0xFF856404),
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -284,7 +357,7 @@ fun MainScreen(
             }
         }
 
-        // Results Card
+        // Results Hero Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -292,24 +365,24 @@ fun MainScreen(
             )
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
                     text = stringResource(R.string.charge_required),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Medium
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
                 )
 
                 if (targetSOC < currentSOC) {
                     Text(
-                        text = "Target charge is lower than current charge. Please adjust values.",
+                        text = stringResource(R.string.target_lower_warning),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 } else if (targetSOC == currentSOC) {
                     Text(
-                        text = "Target charge equals current charge - no charging needed.",
+                        text = stringResource(R.string.target_equal_info),
                         color = Color(0xFFFF8C00),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium
@@ -323,50 +396,35 @@ fun MainScreen(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = stringResource(R.string.energy_needed),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "%.2f kWh".format(energyNeeded),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                        Column {
+                            Text(
+                                text = "%.2f kWh".format(energyNeeded),
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "${currentSOC.roundToInt()}% ➔ ${targetSOC.roundToInt()}% (inkl. ${"%.0f".format(settingsManager.chargeLosses.value)}% Verlust)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(R.string.soc_increase),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "${socIncrease.roundToInt()}%",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = if (socIncrease >= 0) Color.Green else Color.Red
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(R.string.effective_capacity),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "%.1f kWh".format(settingsManager.effectiveBatteryCapacity),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Surface(
+                            shape = MaterialTheme.shapes.medium,
+                            color = Color(0xFFE8F5E9)
+                        ) {
+                            Text(
+                                text = "+${socIncrease.roundToInt()}%",
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2E7D32)
+                            )
+                        }
                     }
 
                     // go-eCharger Push Limit Section (only if enabled and connected)
@@ -374,236 +432,87 @@ fun MainScreen(
                         settingsManager.goEChargerConnectionStatus.value.startsWith("✓") &&
                         targetSOC > currentSOC) {
 
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        val energyNeededRounded = kotlin.math.ceil(energyNeeded * 10.0) / 10.0
+                        val energyNeededWh = energyNeededRounded * 1000
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                text = "go-eCharger Control",
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.primary
+                                text = stringResource(R.string.energy_limit_format, energyNeededRounded),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
                             )
-
-                            val energyNeeded = settingsManager.calculateRequiredEnergy(
-                                from = currentSOC.toDouble(),
-                                to = targetSOC.toDouble()
+                            Text(
+                                text = stringResource(R.string.energy_limit_wh_format, energyNeededWh.toInt()),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
 
-                            // Convert kWh to Wh and round to 100 Wh (0.1 kWh) increments
-                            val energyNeededRounded = kotlin.math.ceil(energyNeeded * 10.0) / 10.0
-                            val energyNeededWh = energyNeededRounded * 1000
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    pushingLimit = true
+                                    pushResult = null
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Energy limit: %.1f kWh".format(energyNeededRounded),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Text(
-                                    text = "(${energyNeededWh.toInt()} Wh)",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                                    val energyResult = goEChargerApi.setEnergyLimit(
+                                        settingsManager.goEChargerIpAddress.value,
+                                        energyNeededWh
+                                    )
 
-                            Button(
-                                onClick = {
-                                    scope.launch {
-                                        pushingLimit = true
-                                        pushResult = null
+                                    pushingLimit = false
 
-                                        // Set energy limit only (don't change current setting)
-                                        val energyResult = goEChargerApi.setEnergyLimit(
-                                            settingsManager.goEChargerIpAddress.value,
-                                            energyNeededWh
-                                        )
-
-                                        pushingLimit = false
-
-                                        if (energyResult.success) {
-                                            pushResult = "✓ Energy limit set successfully"
-                                        } else {
-                                            pushResult = "✗ ${energyResult.error ?: "Failed"}"
-                                        }
+                                    if (energyResult.success) {
+                                        pushResult = pushSuccessMsg
+                                    } else {
+                                        pushResult = "✗ ${energyResult.error ?: "Failed"}"
                                     }
-                                },
-                                enabled = !pushingLimit,
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                )
-                            ) {
-                                if (pushingLimit) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        strokeWidth = 2.dp,
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Pushing...")
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.Send,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Set Energy Limit", fontWeight = FontWeight.SemiBold)
                                 }
-                            }
-
-                            // Push result status
-                            if (pushResult != null) {
-                                Text(
-                                    text = pushResult!!,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium,
-                                    color = when {
-                                        pushResult!!.startsWith("✓") -> Color(0xFF4CAF50)
-                                        pushResult!!.startsWith("✗") -> Color(0xFFF44336)
-                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
+                            },
+                            enabled = !pushingLimit,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            if (pushingLimit) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.btn_pushing))
+                            } else {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Send,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.btn_set_energy_limit), fontWeight = FontWeight.SemiBold)
                             }
                         }
+
+                        if (pushResult != null) {
+                            Text(
+                                text = pushResult!!,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium,
+                                color = when {
+                                    pushResult!!.startsWith("✓") -> Color(0xFF4CAF50)
+                                    pushResult!!.startsWith("✗") -> Color(0xFFF44336)
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
-                }
-            }
-        }
-
-        // Settings Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.settings),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(R.string.battery_capacity),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "%.1f kWh".format(settingsManager.batteryCapacity.value),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(R.string.state_of_health),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "%.1f%%".format(settingsManager.stateOfHealth.value),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = when {
-                                settingsManager.stateOfHealth.value > 90.0 -> Color.Green
-                                settingsManager.stateOfHealth.value > 80.0 -> Color(0xFFFF8C00)
-                                else -> Color.Red
-                            }
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = stringResource(R.string.charge_losses),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "%.1f%%".format(settingsManager.chargeLosses.value),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-        }
-
-        // Quick Presets
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.quick_presets),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Medium
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = {
-                        settingsManager.setTargetSOC(80f)
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Daily 80%",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        settingsManager.setTargetSOC(90f)
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Top Up 90%",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        settingsManager.setTargetSOC(100f)
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Road Trip 100%",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
                 }
             }
         }

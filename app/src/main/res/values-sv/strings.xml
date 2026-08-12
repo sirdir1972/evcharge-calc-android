@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Elbil Laddkalkylator</string>
+    <string name="current_charge">Nuvarande laddning</string>
+    <string name="target_charge">Målladdning</string>
+    <string name="charge_required">Laddningsbehov</string>
+    <string name="energy_needed">Energi som behövs</string>
+    <string name="soc_increase">SOC-ökning</string>
+    <string name="effective_capacity">Effektiv kapacitet</string>
+    <string name="settings">Inställningar</string>
+    <string name="open_settings">Öppna inställningar</string>
+    <string name="battery_capacity">Batterikapacitet</string>
+    <string name="state_of_health">Hälsotillstånd</string>
+    <string name="charge_losses">Laddningsförluster</string>
+    <string name="quick_presets">Snabbval</string>
+    <string name="preset_daily_80">Vardag 80%</string>
+    <string name="preset_top_up_90">Påfyllning 90%</string>
+    <string name="preset_road_trip_100">Långresa 100%</string>
+    <string name="target_lower_warning">Målladdning är lägre än nuvarande laddning. Justera värdena.</string>
+    <string name="target_equal_info">Målladdning är samma som nuvarande - ingen laddning behövs.</string>
+    <string name="auto_adjusted_format">Automatiskt justerad: %1$s</string>
+    <string name="ev_settings">Elbilsinställningar</string>
+    <string name="done">Klar</string>
+    <string name="back">Tillbaka</string>
+    <string name="battery_configuration">Batterikonfiguration</string>
+    <string name="calculated_values">Beräknade värden</string>
+    <string name="usable_capacity">Användbar kapacitet (10-90%)</string>
+    <string name="settings_description">Justera dessa värden efter din elbils specifikationer. Batterikapacitet är totalt kWh, SOH visar batteridegradering över tid och förluster tar hänsyn till laddningseffektivitet.</string>
+    
+    <!-- go-eCharger -->
+    <string name="goe_integration">go-eCharger-integration</string>
+    <string name="goe_control_title">go-eCharger-styrning</string>
+    <string name="enable_goe">Aktivera go-eCharger</string>
+    <string name="enable_goe_desc">Skicka laddningsgränser till laddaren</string>
+    <string name="charger_ip_address">Laddarens IP-adress</string>
+    <string name="energy_limit_format">Energigräns: %1$.1f kWh</string>
+    <string name="energy_limit_wh_format">(%1$d Wh)</string>
+    <string name="btn_set_energy_limit">Ställ in energigräns</string>
+    <string name="btn_pushing">Skickar…</string>
+    <string name="goe_limit_success">✓ Energigräns inställd</string>
+    <string name="test">Testa</string>
+    <string name="testing">Testar…</string>
+    <string name="connection_status">Anslutningsstatus:</string>
+    <string name="not_tested">Inte testad</string>
+    <string name="connected">Ansluten</string>
+    <string name="failed">Misslyckades</string>
+
+    <!-- Errors & Validation -->
+    <string name="error_required">Krävs</string>
+    <string name="error_invalid_number">Ogiltigt tal</string>
+    <string name="error_cannot_be_negative">Kan inte vara negativt</string>
+    <string name="error_cannot_exceed_100">Kan inte överstiga 100%</string>
+    <string name="error_current_exceeds_target">Nuvarande laddning kan inte överstiga målladdning</string>
+    <string name="error_target_higher_than_current">Målladdning bör vara högre än nuvarande laddning</string>
+    <string name="language">Språk</string>
+    <string name="system_default">Systemstandard</string>
+</resources>

@@ -12,14 +12,45 @@
     <string name="state_of_health">State of Health</string>
     <string name="charge_losses">Charge Losses</string>
     <string name="quick_presets">Quick Presets</string>
-    <string name="daily_preset">Daily\n(20-80%)</string>
-    <string name="road_trip_preset">Road Trip\n(20-100%)</string>
-    <string name="top_up_preset">Top Up\n(60-90%)</string>
-    <string name="target_lower_warning">Target charge is lower than current charge</string>
+    <string name="preset_daily_80">Daily 80%</string>
+    <string name="preset_top_up_90">Top Up 90%</string>
+    <string name="preset_road_trip_100">Road Trip 100%</string>
+    <string name="target_lower_warning">Target charge is lower than current charge. Please adjust values.</string>
+    <string name="target_equal_info">Target charge equals current charge - no charging needed.</string>
+    <string name="auto_adjusted_format">Auto-adjusted: %1$s</string>
     <string name="ev_settings">EV Settings</string>
     <string name="done">Done</string>
+    <string name="back">Back</string>
     <string name="battery_configuration">Battery Configuration</string>
     <string name="calculated_values">Calculated Values</string>
     <string name="usable_capacity">Usable Capacity (10-90%)</string>
     <string name="settings_description">Adjust these values based on your EV\'s specifications. Battery capacity is the total kWh rating, SOH represents battery degradation over time, and charge losses account for charging inefficiencies.</string>
+    
+    <!-- go-eCharger -->
+    <string name="goe_integration">go-eCharger Integration</string>
+    <string name="goe_control_title">go-eCharger Control</string>
+    <string name="enable_goe">Enable go-eCharger</string>
+    <string name="enable_goe_desc">Push charge limits to charger</string>
+    <string name="charger_ip_address">Charger IP Address</string>
+    <string name="energy_limit_format">Energy limit: %1$.1f kWh</string>
+    <string name="energy_limit_wh_format">(%1$d Wh)</string>
+    <string name="btn_set_energy_limit">Set Energy Limit</string>
+    <string name="btn_pushing">Pushing…</string>
+    <string name="goe_limit_success">✓ Energy limit set successfully</string>
+    <string name="test">Test</string>
+    <string name="testing">Testing…</string>
+    <string name="connection_status">Connection Status:</string>
+    <string name="not_tested">Not tested</string>
+    <string name="connected">Connected</string>
+    <string name="failed">Failed</string>
+
+    <!-- Errors & Validation -->
+    <string name="error_required">Required</string>
+    <string name="error_invalid_number">Invalid number</string>
+    <string name="error_cannot_be_negative">Cannot be negative</string>
+    <string name="error_cannot_exceed_100">Cannot exceed 100%</string>
+    <string name="error_current_exceeds_target">Current charge cannot exceed target charge</string>
+    <string name="error_target_higher_than_current">Target charge should be higher than current charge</string>
+    <string name="language">Language</string>
+    <string name="system_default">System Default</string>
 </resources>

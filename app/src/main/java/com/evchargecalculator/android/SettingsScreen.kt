@@ -22,6 +22,25 @@ import kotlin.math.roundToInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
+data class LanguageOption(
+    val code: String,
+    val nativeName: String,
+    val englishName: String
+)
+
+val supportedLanguages = listOf(
+    LanguageOption("", "System Default", "Default"),
+    LanguageOption("en", "English", "English"),
+    LanguageOption("de", "Deutsch", "German"),
+    LanguageOption("fr", "Français", "French"),
+    LanguageOption("nl", "Nederlands", "Dutch"),
+    LanguageOption("es", "Español", "Spanish"),
+    LanguageOption("it", "Italiano", "Italian"),
+    LanguageOption("nb", "Norsk (Bokmål)", "Norwegian"),
+    LanguageOption("sv", "Svenska", "Swedish"),
+    LanguageOption("pt", "Português", "Portuguese")
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -65,7 +84,7 @@ fun SettingsScreen(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = stringResource(R.string.back)
                     )
                 }
             },
@@ -119,7 +138,7 @@ fun SettingsScreen(
                                 value = batteryCapacityText,
                                 onValueChange = { newValue ->
                                     batteryCapacityText = newValue
-                                    newValue.toDoubleOrNull()?.let { value ->
+                                    newValue.replace(',', '.').toDoubleOrNull()?.let { value ->
                                         if (value in 10.0..200.0) {
                                             settingsManager.setBatteryCapacity(value)
                                         }
@@ -164,7 +183,7 @@ fun SettingsScreen(
                                 value = stateOfHealthText,
                                 onValueChange = { newValue ->
                                     stateOfHealthText = newValue
-                                    newValue.toDoubleOrNull()?.let { value ->
+                                    newValue.replace(',', '.').toDoubleOrNull()?.let { value ->
                                         if (value in 50.0..100.0) {
                                             settingsManager.setStateOfHealth(value)
                                         }
@@ -209,7 +228,7 @@ fun SettingsScreen(
                                 value = chargeLossesText,
                                 onValueChange = { newValue ->
                                     chargeLossesText = newValue
-                                    newValue.toDoubleOrNull()?.let { value ->
+                                    newValue.replace(',', '.').toDoubleOrNull()?.let { value ->
                                         if (value in 5.0..25.0) {
                                             settingsManager.setChargeLosses(value)
                                         }
@@ -304,7 +323,7 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = "go-eCharger Integration",
+                        text = stringResource(R.string.goe_integration),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -318,11 +337,11 @@ fun SettingsScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Enable go-eCharger",
+                                text = stringResource(R.string.enable_goe),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                text = "Push charge limits to charger",
+                                text = stringResource(R.string.enable_goe_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -343,7 +362,7 @@ fun SettingsScreen(
                     if (settingsManager.goEChargerEnabled.value) {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                text = "Charger IP Address",
+                                text = stringResource(R.string.charger_ip_address),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             
@@ -364,7 +383,7 @@ fun SettingsScreen(
                                     },
                                     modifier = Modifier.weight(1f),
                                     placeholder = { Text("192.168.1.100") },
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                                     singleLine = true
                                 )
                                 
@@ -386,7 +405,7 @@ fun SettingsScreen(
                                     },
                                     enabled = goEChargerIpText.isNotBlank()
                                 ) {
-                                    Text("Test")
+                                    Text(stringResource(R.string.test))
                                 }
                             }
                             
@@ -397,7 +416,7 @@ fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Connection Status:",
+                                    text = stringResource(R.string.connection_status),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Text(
@@ -420,6 +439,81 @@ fun SettingsScreen(
                 }
             }
             
+            // Language Selection Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.language),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    var languageExpanded by remember { mutableStateOf(false) }
+                    val currentCode = settingsManager.appLanguage.value
+                    val currentOption = supportedLanguages.find { it.code == currentCode } ?: supportedLanguages.first()
+
+                    ExposedDropdownMenuBox(
+                        expanded = languageExpanded,
+                        onExpandedChange = { languageExpanded = it },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = if (currentOption.code.isEmpty()) stringResource(R.string.system_default) else currentOption.nativeName,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = languageExpanded) },
+                            modifier = Modifier
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                                .fillMaxWidth(),
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = languageExpanded,
+                            onDismissRequest = { languageExpanded = false }
+                        ) {
+                            supportedLanguages.forEach { lang ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = if (lang.code.isEmpty()) stringResource(R.string.system_default) else lang.nativeName,
+                                                fontWeight = if (lang.code == currentCode) FontWeight.Bold else FontWeight.Normal,
+                                                color = if (lang.code == currentCode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                            if (lang.code.isNotEmpty()) {
+                                                Text(
+                                                    text = lang.englishName,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                        }
+                                    },
+                                    onClick = {
+                                        settingsManager.setAppLanguage(lang.code)
+                                        languageExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             // Description Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -439,6 +533,8 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

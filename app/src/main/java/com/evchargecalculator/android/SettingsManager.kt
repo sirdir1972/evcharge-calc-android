@@ -86,6 +86,17 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
     )
     val targetSOC: State<Float> = _targetSOC
     
+    // App language selection ("" for system default, or language code e.g. "de", "fr", "en")
+    private val _appLanguage = mutableStateOf(
+        preferences.getString("appLanguage", "") ?: ""
+    )
+    val appLanguage: State<String> = _appLanguage
+    
+    fun setAppLanguage(languageCode: String) {
+        _appLanguage.value = languageCode
+        preferences.edit().putString("appLanguage", languageCode).apply()
+    }
+    
     fun setBatteryCapacity(capacity: Double) {
         _batteryCapacity.value = capacity
         preferences.edit().putFloat("batteryCapacity", capacity.toFloat()).apply()
@@ -185,7 +196,21 @@ class SettingsManager(application: Application) : AndroidViewModel(application) 
         return _currentSOC.value <= _targetSOC.value
     }
     
-    // Get validation message for current SOC state
+    enum class SOCValidationError {
+        CURRENT_EXCEEDS_TARGET,
+        TARGET_TOO_CLOSE
+    }
+    
+    // Get validation error type for current SOC state
+    fun getSOCValidationError(): SOCValidationError? {
+        return when {
+            _currentSOC.value > _targetSOC.value -> SOCValidationError.CURRENT_EXCEEDS_TARGET
+            _targetSOC.value - _currentSOC.value < 1f -> SOCValidationError.TARGET_TOO_CLOSE
+            else -> null
+        }
+    }
+
+    // Get validation message for current SOC state (legacy)
     fun getSOCValidationMessage(): String? {
         return when {
             _currentSOC.value > _targetSOC.value -> "Current charge cannot exceed target charge"
