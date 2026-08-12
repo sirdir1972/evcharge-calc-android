@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace 'com.evchargecalculator.android'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.sirdir.EVChargeCalc"
         minSdk 24
-        targetSdk 35
+        targetSdk 36
         versionCode 3
         versionName "1.1"
 

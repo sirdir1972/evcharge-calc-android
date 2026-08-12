@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file.
   - Prominent Result Hero card showing required energy in kWh, SOC delta badge, and loss calculations.
 - **Edge-to-Edge and Navigation Bar Inset Handling:**
   - Configured `enableEdgeToEdge()` with proper `safeDrawingPadding()` to ensure bottom controls are never obscured by system navigation bars.
+- **Target & Compile SDK:**
+  - Updated `compileSdk` and `targetSdk` to API Level 36 (Android 16).
 - **Charger IP Input Usability:**
   - Configured IP address input keyboard to `KeyboardType.Uri` so the period (`.`) key is always readily available.
 
